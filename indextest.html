@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <form id="registerForm">
+        <label for="username">Nombre de Usuario:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+
+        <input type="hidden" id="fingerprint" name="fingerprint">
+
+        <input type="submit" value="Registrar">
+    </form>
+
+    <script src="https://openfpcdn.io/fingerprintjs/v3"></script>
+    <script>
+        function getFingerprint() {
+            FingerprintJS.load().then(fp => {
+                fp.get().then(result => {
+                    const visitorId = result.visitorId;
+                    document.getElementById('fingerprint').value = visitorId;
+                });
+            });
+        }
+
+        window.onload = function() {
+            getFingerprint();
+        };
+
+        document.getElementById('registerForm').onsubmit = function(event) {
+            event.preventDefault();
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    fingerprint: document.getElementById('fingerprint').value
+                }),
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message));
+        };
+    </script>
+</body>
+</html>
