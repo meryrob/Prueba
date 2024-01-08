@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometric Authentication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Biometric Authentication Test</h1>
+
+    <button onclick="enrollFingerprint()">Enroll Fingerprint</button>
+    <button onclick="authenticateFingerprint()">Authenticate Fingerprint</button>
+
+    <script>
+        async function enrollFingerprint() {
+            try {
+                // Aquí se utiliza la API WebAuthn para enrollar la huella
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        rp: { name: "BiometricApp" },
+                        user: {
+                            id: new Uint8Array([1]),
+                            name: "User1",
+                            displayName: "User 1"
+                        },
+                        challenge: new Uint8Array([4, 3, 2, 1]),
+                        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                        authenticatorSelection: { userVerification: "required" },
+                        timeout: 60000
+                    }
+                });
+
+                console.log("Fingerprint enrolled successfully:", credential);
+            } catch (error) {
+                console.error("Error enrolling fingerprint:", error);
+            }
+        }
+
+        async function authenticateFingerprint() {
+            try {
+                // Aquí se utiliza la API WebAuthn para autenticar la huella
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: new Uint8Array([4, 3, 2, 1]),
+                        allowCredentials: [
+                            {
+                                type: "public-key",
+                                id: new Uint8Array([1]),
+                                transports: ["internal"]
+                            }
+                        ],
+                        userVerification: "required",
+                        timeout: 60000
+                    }
+                });
+
+                console.log("Authentication successful:", assertion);
+            } catch (error) {
+                console.error("Error authenticating fingerprint:", error);
+            }
+        }
+    </script>
+</body>
+</html>
